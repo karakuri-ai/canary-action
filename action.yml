@@ -1,0 +1,15 @@
+name: 'canary'
+description: 'canary'
+inputs:
+  type:
+    description: 'type'
+    required: false
+    default: 'add'
+outputs:
+  canaries:
+    description: 'comma separated bot id'
+  type:
+    description: create, update or remove
+runs:
+  using: 'node12'
+  main: 'lib/index.js'

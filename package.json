@@ -1,0 +1,38 @@
+{
+  "name": "canary-action",
+  "version": "1.0.0",
+  "main": "lib/index.js",
+  "author": "t.saeki@karakuri.ai",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "build:main": "ncc build src/main.ts --license licenses.txt -o lib",
+    "build:cleanup": "ncc build src/cleanup.ts --license licenses.txt -o cleanup/lib",
+    "build": "run-p build:main build:cleanup",
+    "clean": "shx rm -rf lib/* cleanup/lib/*",
+    "watch": "yarn build -w",
+    "test": "jest",
+    "cz": "yarn clean && yarn build && git add lib/* && git add cleanup/lib/* && git-cz"
+  },
+  "dependencies": {
+    "@actions/core": "1.2.6",
+    "@actions/github": "4.0.0",
+    "aws-sdk": "2.874.0",
+    "just-diff": "3.0.2",
+    "just-diff-apply": "3.0.0",
+    "just-omit": "1.1.0",
+    "just-typeof": "2.0.0"
+  },
+  "devDependencies": {
+    "@karakuri-ai/jest-config": "0.0.2",
+    "@types/aws-sdk": "2.7.0",
+    "@types/jest": "26.0.22",
+    "@vercel/ncc": "0.27.0",
+    "git-cz": "4.7.6",
+    "jest": "26.6.3",
+    "npm-run-all": "4.1.5",
+    "shx": "0.3.3",
+    "ts-jest": "26.5.4",
+    "typescript": "4.2.3"
+  }
+}
