@@ -43,12 +43,9 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: build
-      - run: tar -xvf build.tar
-      - name: Bump version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v5.3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          tar -xvf build.tar
+          rm -f build.tar
       - run: |
           git config --global user.email "push@no-reply.github.com"
           git config --global user.name "GitHub Push Action"
@@ -65,12 +62,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PUSH_TOKEN }}
           BRANCH: master
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v5.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - uses: 'marvinpinto/action-automatic-releases@v1.1.1'
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
           automatic_release_tag: ${{ steps.tag_version.outputs.new_tag }}
-          prerelease: true
-          title: 'Development Build'
+          prerelease: false
           files: |
             action.yml
             lib
