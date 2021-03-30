@@ -49,6 +49,22 @@ jobs:
         uses: mathieudutour/github-tag-action@v5.3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          git config --global user.email "push@no-reply.github.com"
+          git config --global user.name "GitHub Push Action"
+
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "Clean!"
+          else
+            git add --all
+
+            git status
+            git commit -m "GitHub Push"
+            git push origin $BRANCH
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUSH_TOKEN }}
+          BRANCH: master
       - name: Create a GitHub release
         uses: actions/create-release@v1
         env:
