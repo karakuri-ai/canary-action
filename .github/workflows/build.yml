@@ -29,7 +29,7 @@ jobs:
       - run: yarn
       - run: yarn build
       # - run: |
-      - run: tar -cvf build.tar action.yml lib cleanup
+      - run: tar -cvf build.tar action.yml lib
       - uses: actions/upload-artifact@v2
         with:
           name: build
