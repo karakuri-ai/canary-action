@@ -72,7 +72,3 @@ jobs:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
           automatic_release_tag: ${{ steps.tag_version.outputs.new_tag }}
           prerelease: false
-          files: |
-            action.yml
-            lib
-            cleanup

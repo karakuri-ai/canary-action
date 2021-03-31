@@ -5,6 +5,14 @@ inputs:
     description: 'type'
     required: false
     default: 'add'
+  conclusion:
+    description: 'conclusion'
+    required: false
+    default: 'success'
+  function:
+    description: 'function'
+    required: false
+    default: 'main'
 outputs:
   canaries:
     description: 'comma separated bot id'

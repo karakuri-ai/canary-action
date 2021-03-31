@@ -8,6 +8,15 @@ async function action() {
   const canary = generateCanaryProcessor(debug, s3, context.sha)
   try {
     const type = getInput('type')
+
+    const f = getInput('function')
+    if (f === 'cleanup') {
+      const conclusion = getInput('conclusion')
+      const ref = type === 'remove' ? context.payload.ref : context.ref
+      await canary.postProcess(ref, conclusion)
+      return
+    }
+
     const ref = type === 'remove' ? context.payload.ref : context.ref
     const { canaries, typeDetail } = await canary.process(type, ref, context.payload?.ref_type)
 

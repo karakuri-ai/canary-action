@@ -7,12 +7,11 @@
   "private": true,
   "scripts": {
     "build:main": "ncc build src/main.ts --license licenses.txt -o lib",
-    "build:cleanup": "ncc build src/cleanup.ts --license licenses.txt -o cleanup/lib",
-    "build": "run-p build:main build:cleanup",
-    "clean": "shx rm -rf lib/* cleanup/lib/*",
+    "build": "run-p build:main",
+    "clean": "shx rm -rf lib/**",
     "watch": "yarn build -w",
     "test": "jest",
-    "cz": "yarn clean && yarn build && git add lib/* && git add cleanup/lib/* && git-cz"
+    "cz": "yarn clean && yarn build && git add lib/* && git-cz"
   },
   "dependencies": {
     "@actions/core": "1.2.6",
