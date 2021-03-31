@@ -17,8 +17,13 @@ export function generateCanaryProcessor(
   const key = 'canaries/bots.json'
   return { process, postProcess }
 
-  async function process(type: string, ref: string, refType?: string): Promise<Result> {
-    const [accountId, bucketName] = parse(ref, debug)
+  async function process(
+    type: string,
+    ref: string,
+    bucketName: string,
+    refType?: string
+  ): Promise<Result> {
+    const [accountId] = parse(ref, debug)
 
     const { canaries: current, operations } = await s3.download(bucketName, key)
     const typeDetail = type === 'remove' ? type : current.includes(accountId) ? 'update' : 'create'
@@ -40,9 +45,7 @@ export function generateCanaryProcessor(
     return { canaries, typeDetail }
   }
 
-  async function postProcess(ref: string, conclusion: string) {
-    const [, bucketName] = parse(ref, debug)
-
+  async function postProcess(bucketName: string, conclusion: string) {
     const { canaries: current, operations } = await s3.download(bucketName, key)
     if (!operations[sha]) {
       return

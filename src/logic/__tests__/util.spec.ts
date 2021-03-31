@@ -7,11 +7,11 @@ describe('util', () => {
   describe('parse', () => {
     it('staging', () => {
       const result = parse('canary2/aaa/develop')
-      expect(result).toStrictEqual(['aaa', 'private.karakuri.ninja'])
+      expect(result).toStrictEqual(['aaa'])
     })
     it('production', () => {
       const result = parse('test-canary2/aaa/master')
-      expect(result).toStrictEqual(['aaa', 'private.karakuri.ai'])
+      expect(result).toStrictEqual(['aaa'])
     })
     it('empty', () => {
       const result = parse(undefined)

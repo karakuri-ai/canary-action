@@ -36,11 +36,7 @@ export function parse(ref: string | undefined, debug = (m: string) => {}) {
     return []
   }
   if (/^.*?canary2\/([^/]+?)\/(develop|master)$/.test(ref)) {
-    const tld = RegExp.$2 === 'master' ? 'ai' : 'ninja'
-    debug(`regex matches: ${RegExp.$1}, ${RegExp.$2}`)
-    const bucketName = `private.karakuri.${tld}`
-    debug(`bucketName: ${bucketName}`)
-    return [RegExp.$1, bucketName]
+    return [RegExp.$1]
   }
   return []
 }

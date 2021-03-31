@@ -13,6 +13,9 @@ inputs:
     description: 'function'
     required: false
     default: 'main'
+  bucketName:
+    description: 'bucket name'
+    required: true
 outputs:
   canaries:
     description: 'comma separated bot id'
