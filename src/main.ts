@@ -2,31 +2,36 @@ import { getInput, setFailed, setOutput, debug } from '@actions/core'
 import { context } from '@actions/github'
 
 import { generateS3Client, generateCanaryProcessor } from './logic'
+import { parse } from './logic/util'
 
 async function action() {
-  const s3 = generateS3Client(debug)
-  const canary = generateCanaryProcessor(debug, s3, context.sha)
-  try {
-    const type = getInput('type')
-    const bucket = getInput('bucketName')
-    if (!bucket) {
-      debug('skip empty bucket')
-      return
-    }
+  const type = getInput('type')
+  const bucket = getInput('bucketName')
+  if (!bucket) {
+    debug('skip empty bucket')
+    return
+  }
 
-    const f = getInput('function')
+  const f = getInput('function')
+  const account = getInput('account')
+
+  const s3 = generateS3Client(debug)
+  const canary = generateCanaryProcessor(
+    debug,
+    s3,
+    type === 'remove' ? `${type}-${account}` : context.sha
+  )
+  try {
     if (f === 'cleanup') {
       const conclusion = getInput('conclusion')
       await canary.postProcess(bucket, conclusion)
       return
     }
 
-    const ref = type === 'remove' ? context.payload.ref : context.ref
     const { canaries, typeDetail } = await canary.process(
       type,
-      ref,
-      bucket,
-      context.payload?.ref_type
+      account || parse(type === 'remove' ? context.payload.ref : context.ref, debug),
+      bucket
     )
 
     setOutput('type', typeDetail)

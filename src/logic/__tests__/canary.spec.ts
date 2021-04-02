@@ -9,9 +9,9 @@ function debug(message: string) {
 const bucket = 'bucket'
 const keys = ['canaries.json', 'operations.json']
 const refs = {
-  dev1: 'canary2/dev1/develop',
-  dev2: 'canary2/dev2/develop',
-  dev3: 'canary2/dev3/develop',
+  dev1: 'dev1',
+  dev2: 'dev2',
+  dev3: 'dev3',
 }
 const mockGenerateS3Client = generateS3Client as jest.MockedFunction<typeof generateS3Client>
 mockGenerateS3Client.mockImplementation(() => {
@@ -130,8 +130,8 @@ describe('canary', () => {
       await testC.postProcess(bucket, 'success')
       await testA.postProcess(bucket, 'success')
 
-      await testB.process('remove', refs.dev2, bucket, 'branch')
-      await testB.process('remove', refs.dev2, bucket, 'branch')
+      await testB.process('remove', refs.dev2, bucket)
+      await testB.process('remove', refs.dev2, bucket)
       await testB.postProcess(bucket, 'success')
       await testB.postProcess(bucket, 'success')
       const result = await s3.download(bucket, keys)
@@ -148,8 +148,8 @@ describe('canary', () => {
       await testC.postProcess(bucket, 'success')
       await testA.postProcess(bucket, 'success')
 
-      await testB.process('remove', refs.dev2, bucket, 'branch')
-      await testC.process('remove', refs.dev2, bucket, 'branch')
+      await testB.process('remove', refs.dev2, bucket)
+      await testC.process('remove', refs.dev2, bucket)
       await testB.postProcess(bucket, 'failure')
 
       await testC.postProcess(bucket, 'success')

@@ -33,12 +33,12 @@ export function update(
 export function parse(ref: string | undefined, debug = (m: string) => {}) {
   debug(`parse: ${ref}`)
   if (!ref) {
-    return []
+    return undefined
   }
   if (/^.*?canary2\/([^/]+?)\/(develop|master)$/.test(ref)) {
-    return [RegExp.$1]
+    return RegExp.$1
   }
-  return []
+  return undefined
 }
 
 export function diff(

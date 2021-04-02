@@ -7,19 +7,19 @@ describe('util', () => {
   describe('parse', () => {
     it('staging', () => {
       const result = parse('canary2/aaa/develop')
-      expect(result).toStrictEqual(['aaa'])
+      expect(result).toStrictEqual('aaa')
     })
     it('production', () => {
       const result = parse('test-canary2/aaa/master')
-      expect(result).toStrictEqual(['aaa'])
+      expect(result).toStrictEqual('aaa')
     })
     it('empty', () => {
       const result = parse(undefined)
-      expect(result).toStrictEqual([])
+      expect(result).toStrictEqual(undefined)
     })
     it('invalid', () => {
       const result = parse('test')
-      expect(result).toStrictEqual([])
+      expect(result).toStrictEqual(undefined)
     })
   })
 

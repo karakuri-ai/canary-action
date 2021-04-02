@@ -2,7 +2,7 @@ import { diffApply as apply } from 'just-diff-apply'
 import omit from 'just-omit'
 
 import { generateS3Client } from './s3'
-import { parse, diff, update } from './util'
+import { diff, update } from './util'
 
 interface Result {
   canaries: string[]
@@ -17,21 +17,10 @@ export function generateCanaryProcessor(
   const keys = ['canaries/bots.json', 'canaries/operations.json']
   return { process, postProcess }
 
-  async function process(
-    type: string,
-    ref: string,
-    bucketName: string,
-    refType?: string
-  ): Promise<Result> {
-    const [accountId] = parse(ref, debug)
-
+  async function process(type: string, accountId: string, bucketName: string): Promise<Result> {
     const { canaries: current, operations } = await s3.download(bucketName, keys)
     const typeDetail = type === 'remove' ? type : current.includes(accountId) ? 'update' : 'create'
-    // await s3.backup(bucketName, key, sha)
-    if ((type === 'remove' && refType !== 'branch') || !accountId) {
-      debug(`ignore: ref_type ${refType}, ${accountId}`)
-      return { canaries: current, typeDetail }
-    }
+
     const canaries = update(type, current, accountId, operations)
 
     await s3.upload(

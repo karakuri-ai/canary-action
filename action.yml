@@ -17,6 +17,10 @@ inputs:
     description: 'bucket name'
     required: false
     default: ''
+  account:
+    description: 'account id'
+    required: false
+    default: ''
 outputs:
   canaries:
     description: 'comma separated bot id'
