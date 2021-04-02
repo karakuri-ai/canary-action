@@ -9,6 +9,10 @@ async function action() {
   try {
     const type = getInput('type')
     const bucket = getInput('bucketName')
+    if (!bucket) {
+      debug('skip empty bucket')
+      return
+    }
 
     const f = getInput('function')
     if (f === 'cleanup') {

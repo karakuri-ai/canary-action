@@ -14,7 +14,7 @@ export function generateCanaryProcessor(
   s3: ReturnType<typeof generateS3Client>,
   sha: string
 ) {
-  const key = 'canaries/bots.json'
+  const keys = ['canaries/bots.json', 'canaries/operations.json']
   return { process, postProcess }
 
   async function process(
@@ -25,7 +25,7 @@ export function generateCanaryProcessor(
   ): Promise<Result> {
     const [accountId] = parse(ref, debug)
 
-    const { canaries: current, operations } = await s3.download(bucketName, key)
+    const { canaries: current, operations } = await s3.download(bucketName, keys)
     const typeDetail = type === 'remove' ? type : current.includes(accountId) ? 'update' : 'create'
     // await s3.backup(bucketName, key, sha)
     if ((type === 'remove' && refType !== 'branch') || !accountId) {
@@ -34,19 +34,23 @@ export function generateCanaryProcessor(
     }
     const canaries = update(type, current, accountId, operations)
 
-    await s3.upload(bucketName, key, {
-      canaries,
-      operations: {
-        ...operations,
-        [sha]: diff(typeDetail, canaries, accountId, operations),
-      },
-    })
+    await s3.upload(
+      bucketName,
+      [],
+      [
+        canaries,
+        {
+          ...operations,
+          [sha]: diff(typeDetail, canaries, accountId, operations),
+        },
+      ]
+    )
 
     return { canaries, typeDetail }
   }
 
   async function postProcess(bucketName: string, conclusion: string) {
-    const { canaries: current, operations } = await s3.download(bucketName, key)
+    const { canaries: current, operations } = await s3.download(bucketName, keys)
     if (!operations[sha]) {
       return
     }
@@ -55,9 +59,6 @@ export function generateCanaryProcessor(
         ? current
         : apply(current, operations[sha])
 
-    await s3.upload(bucketName, key, {
-      canaries,
-      operations: omit(operations, sha),
-    })
+    await s3.upload(bucketName, keys, [canaries, omit(operations, sha)])
   }
 }

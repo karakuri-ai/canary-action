@@ -36,25 +36,37 @@ export function generateS3Client(
   )
   return { download, upload }
 
-  async function download(bucket: string, key: string): Promise<Data> {
+  async function download(bucket: string, keys: string[]): Promise<Data> {
+    const result = await Promise.all(keys.map(key => d(bucket, key))).then(
+      ([canaries, operations]) => ({
+        canaries: Array.isArray(canaries) ? canaries : [],
+        operations: Array.isArray(operations) || !operations ? {} : operations,
+      })
+    )
+    return result
+  }
+
+  async function upload(bucket: string, keys: string[], bodies: unknown[]) {
+    await Promise.all(keys.map((key, index) => u(bucket, key, bodies[index])))
+  }
+
+  async function d(bucket: string, key: string): Promise<Data['canaries'] | Data['operations']> {
     try {
       const result = await s3.getObject({ Bucket: bucket, Key: key }).promise()
       const json = result.Body.toString('utf-8')
       debug(`download: "${json}"`)
       const canaries = JSON.parse(json)
-      if (typeOf(canaries) === 'array') {
-        return { canaries, operations: {} }
-      }
+
       return canaries
     } catch (e) {
       if (e.code === 'NoSuchKey') {
-        return { canaries: [], operations: {} }
+        return undefined
       }
       throw e
     }
   }
 
-  async function upload(bucket: string, key: string, body: Data) {
+  async function u(bucket: string, key: string, body: unknown) {
     const json = JSON.stringify(body)
     debug(`upload: "${json}"`)
     return await s3.upload({ Bucket: bucket, Key: key, Body: json }).promise()

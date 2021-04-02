@@ -7,7 +7,7 @@ function debug(message: string) {
   // console.log(message)
 }
 const bucket = 'bucket'
-const key = 'canaries.json'
+const keys = ['canaries.json', 'operations.json']
 const refs = {
   dev1: 'canary2/dev1/develop',
   dev2: 'canary2/dev2/develop',
@@ -23,9 +23,9 @@ mockGenerateS3Client.mockImplementation(() => {
     download: (bucket, key) => {
       return Promise.resolve(data)
     },
-    upload: (bucket, key, body) => {
-      data.canaries = body.canaries
-      data.operations = body.operations
+    upload: (bucket, keys, bodies) => {
+      data.canaries = bodies[0] as string[]
+      data.operations = bodies[1]
       return Promise.resolve({} as any)
     },
   }
@@ -51,7 +51,7 @@ describe('canary', () => {
       await testA.postProcess(bucket, 'success')
       await testB.postProcess(bucket, 'success')
       await testC.postProcess(bucket, 'success')
-      const result = await s3.download(bucket, key)
+      const result = await s3.download(bucket, keys)
       expect(result).toStrictEqual({ canaries: ['dev1', 'dev2', 'dev3'], operations: {} })
     })
     it('create2 - 失敗', async () => {
@@ -62,7 +62,7 @@ describe('canary', () => {
       await testA.postProcess(bucket, 'failure')
       await testB.postProcess(bucket, 'success')
       await testC.postProcess(bucket, 'success')
-      const result = await s3.download(bucket, key)
+      const result = await s3.download(bucket, keys)
       expect(result).toStrictEqual({ canaries: ['', 'dev2', 'dev3'], operations: {} })
     })
     it('create3 - 実行中の処理がある場合は末尾追加', async () => {
@@ -75,7 +75,7 @@ describe('canary', () => {
       await testB.postProcess(bucket, 'success')
       await testC.postProcess(bucket, 'success')
       await testA.postProcess(bucket, 'success')
-      const result = await s3.download(bucket, key)
+      const result = await s3.download(bucket, keys)
       expect(result).toStrictEqual({ canaries: ['', 'dev2', 'dev3', 'dev1'], operations: {} })
     })
     it('create4 - 実行中の処理がない場合はslotを埋める', async () => {
@@ -88,7 +88,7 @@ describe('canary', () => {
       await testC.postProcess(bucket, 'success')
       await testA.process('create', refs.dev1, bucket)
       await testA.postProcess(bucket, 'success')
-      const result = await s3.download(bucket, key)
+      const result = await s3.download(bucket, keys)
       expect(result).toStrictEqual({ canaries: ['dev1', 'dev2', 'dev3'], operations: {} })
     })
     it('create5 - ランダム', async () => {
@@ -99,7 +99,7 @@ describe('canary', () => {
       await testC.postProcess(bucket, 'success')
       await testB.postProcess(bucket, 'success')
       await testA.postProcess(bucket, 'success')
-      const result = await s3.download(bucket, key)
+      const result = await s3.download(bucket, keys)
       expect(result).toStrictEqual({ canaries: ['dev1', 'dev2', 'dev3'], operations: {} })
     })
   })
@@ -114,7 +114,7 @@ describe('canary', () => {
       await testB.postProcess(bucket, 'success')
       await testC.postProcess(bucket, 'success')
       await testA.postProcess(bucket, 'success')
-      const result = await s3.download(bucket, key)
+      const result = await s3.download(bucket, keys)
       expect(result).toStrictEqual({ canaries: ['', 'dev2', 'dev3', 'dev1'], operations: {} })
     })
   })
@@ -134,7 +134,7 @@ describe('canary', () => {
       await testB.process('remove', refs.dev2, bucket, 'branch')
       await testB.postProcess(bucket, 'success')
       await testB.postProcess(bucket, 'success')
-      const result = await s3.download(bucket, key)
+      const result = await s3.download(bucket, keys)
       expect(result).toStrictEqual({ canaries: ['', '', 'dev3', 'dev1'], operations: {} })
     })
     it('removeはpost processで戻さない', async () => {
@@ -153,7 +153,7 @@ describe('canary', () => {
       await testB.postProcess(bucket, 'failure')
 
       await testC.postProcess(bucket, 'success')
-      const result = await s3.download(bucket, key)
+      const result = await s3.download(bucket, keys)
       expect(result).toStrictEqual({ canaries: ['', '', 'dev3', 'dev1'], operations: {} })
     })
   })
