@@ -13,7 +13,7 @@ async function action() {
   }
 
   const f = getInput('function')
-  const account = getInput('account')
+  const account = getInput('account').trim()
 
   const s3 = generateS3Client(debug)
   const canary = generateCanaryProcessor(

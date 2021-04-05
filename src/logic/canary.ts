@@ -23,17 +23,13 @@ export function generateCanaryProcessor(
 
     const canaries = update(type, current, accountId, operations)
 
-    await s3.upload(
-      bucketName,
-      [],
-      [
-        canaries,
-        {
-          ...operations,
-          [sha]: diff(typeDetail, canaries, accountId, operations),
-        },
-      ]
-    )
+    await s3.upload(bucketName, keys, [
+      canaries,
+      {
+        ...operations,
+        [sha]: diff(typeDetail, canaries, accountId, operations),
+      },
+    ])
 
     return { canaries, typeDetail }
   }
