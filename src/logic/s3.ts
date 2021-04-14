@@ -25,15 +25,7 @@ export function generateS3Client(
   debug: (message: string) => void,
   options?: ConstructorParameters<typeof S3>[0]
 ) {
-  const s3 = new S3(
-    options || {
-      region: 'ap-northeast-1',
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      },
-    }
-  )
+  const s3 = new S3(options)
   return { download, upload }
 
   async function download(bucket: string, keys: string[]): Promise<Data> {
@@ -68,7 +60,8 @@ export function generateS3Client(
 
   async function u(bucket: string, key: string, body: unknown) {
     const json = JSON.stringify(body)
-    debug(`upload: "${json}"`)
+    debug(`upload: ${key}, "${json}"`)
+
     return await s3.upload({ Bucket: bucket, Key: key, Body: json }).promise()
   }
 }

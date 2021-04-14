@@ -18,6 +18,7 @@ export function generateCanaryProcessor(
   return { process, postProcess }
 
   async function process(type: string, accountId: string, bucketName: string): Promise<Result> {
+    debug(`process: ${type} ${accountId}`)
     const { canaries: current, operations } = await s3.download(bucketName, keys)
     const typeDetail = type === 'remove' ? type : current.includes(accountId) ? 'update' : 'create'
 
@@ -35,15 +36,18 @@ export function generateCanaryProcessor(
   }
 
   async function postProcess(bucketName: string, conclusion: string) {
+    debug(`postProcess: ${conclusion}`)
     const { canaries: current, operations } = await s3.download(bucketName, keys)
     if (!operations[sha]) {
+      debug('operation is empty')
       return
     }
     const canaries =
       conclusion === 'success' || operations[sha].length === 0
         ? current
         : apply(current, operations[sha])
-
+    debug(`upload: ${JSON.stringify([canaries, omit(operations, sha)])}`)
     await s3.upload(bucketName, keys, [canaries, omit(operations, sha)])
+    return { canaries }
   }
 }
