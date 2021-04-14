@@ -40,7 +40,7 @@ export function generateCanaryProcessor(
     const { canaries: current, operations } = await s3.download(bucketName, keys)
     if (!operations[sha]) {
       debug('operation is empty')
-      return
+      return { canaries: current }
     }
     const canaries =
       conclusion === 'success' || operations[sha].length === 0
