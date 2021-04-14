@@ -29,17 +29,27 @@ export function generateS3Client(
   return { download, upload }
 
   async function download(bucket: string, keys: string[]): Promise<Data> {
-    const result = await Promise.all(keys.map(key => d(bucket, key))).then(
-      ([canaries, operations]) => ({
-        canaries: Array.isArray(canaries) ? canaries : [],
-        operations: Array.isArray(operations) || !operations ? {} : operations,
-      })
-    )
+    const result: Data = {
+      canaries: [],
+      operations: {},
+    }
+    for (let i = 0; i < keys.length; ++i) {
+      const key = keys[i]
+      const res = await d(bucket, key)
+      if (Array.isArray(res)) {
+        result.canaries = res
+      } else if (res) {
+        result.operations = res
+      }
+    }
     return result
   }
 
   async function upload(bucket: string, keys: string[], bodies: unknown[]) {
-    await Promise.all(keys.map((key, index) => u(bucket, key, bodies[index])))
+    for (let i = 0; i < keys.length; ++i) {
+      const key = keys[i]
+      await u(bucket, key, bodies[i])
+    }
   }
 
   async function d(bucket: string, key: string): Promise<Data['canaries'] | Data['operations']> {
