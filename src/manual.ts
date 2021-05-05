@@ -4,7 +4,7 @@ function debug(message: string) {
   console.log(message)
 }
 function getInput(name: string) {
-  return process.env[name]
+  return process.env[name] || ''
 }
 function setOutput(type: string, message: string) {
   console.log('output', type, message)
