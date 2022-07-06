@@ -1,43 +1,44 @@
-import { action } from './action'
+import { action } from "./action";
 
 function debug(message: string) {
-  console.log(message)
+  console.log(message);
 }
 function getInput(name: string) {
-  return process.env[name] || ''
+  return process.env[name] || "";
 }
 function setOutput(type: string, message: string) {
-  console.log('output', type, message)
+  console.log("output", type, message);
 }
 function setFailed(message: string) {
-  console.log('failure', message)
+  console.log("failure", message);
 }
 const context = {
   sha: process.env.sha,
   ref: process.env.ref,
-}
+};
 async function main() {
   const props = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: 'ap-northeast-1',
-    type: getInput('type'),
-    bucket: getInput('bucketName'),
-    functionName: getInput('function'),
-    account: getInput('account').trim(),
-    conclusion: getInput('conclusion'),
+    region: "ap-northeast-1",
+    version: getInput("version"),
+    type: getInput("type"),
+    bucket: getInput("bucketName"),
+    functionName: getInput("function"),
+    account: getInput("account").trim(),
+    conclusion: getInput("conclusion"),
     sha: context.sha,
     ref: context.ref,
     debug,
-  }
+  };
 
   try {
-    const { typeDetail, canaries } = await action(props)
+    const { typeDetail, canaries } = await action(props);
 
-    setOutput('type', typeDetail)
-    setOutput('canaries', canaries.join(','))
+    setOutput("type", typeDetail);
+    setOutput("canaries", canaries.join(","));
   } catch (error) {
-    setFailed(error.message)
+    setFailed(error.message);
   }
 }
-main()
+main();

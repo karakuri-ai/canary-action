@@ -1,27 +1,29 @@
-import { generateS3Client, generateCanaryProcessor } from './logic'
-import { parse } from './logic/util'
+import { generateS3Client, generateCanaryProcessor } from "./logic";
+import { parse } from "./logic/util";
 
 type Props = {
-  accessKeyId: string
-  secretAccessKey: string
-  region: string
-  type: string
-  bucket: string
-  functionName: string
-  account: string
-  conclusion: string
-  sha?: string
-  ref?: string
-  debug: (message: string) => void
-}
+  accessKeyId: string;
+  secretAccessKey: string;
+  version: string;
+  region: string;
+  type: string;
+  bucket: string;
+  functionName: string;
+  account: string;
+  conclusion: string;
+  sha?: string;
+  ref?: string;
+  debug: (message: string) => void;
+};
 
 type Result = {
-  canaries: string[]
-  typeDetail?: string
-}
+  canaries: string[];
+  typeDetail?: string;
+};
 export async function action({
   accessKeyId,
   secretAccessKey,
+  version,
   region,
   type,
   bucket,
@@ -33,8 +35,8 @@ export async function action({
   debug,
 }: Props): Promise<Result> {
   if (!bucket) {
-    debug('skip empty bucket')
-    return
+    debug("skip empty bucket");
+    return;
   }
 
   const s3 = generateS3Client(debug, {
@@ -43,11 +45,16 @@ export async function action({
       accessKeyId,
       secretAccessKey,
     },
-  })
-  const canary = generateCanaryProcessor(debug, s3, type === 'remove' ? `${type}-${account}` : sha)
-  if (functionName === 'cleanup') {
-    return await canary.postProcess(bucket, conclusion)
+  });
+  const canary = generateCanaryProcessor(
+    debug,
+    s3,
+    type === "remove" ? `${type}-${account}` : sha,
+    version
+  );
+  if (functionName === "cleanup") {
+    return await canary.postProcess(bucket, conclusion);
   }
 
-  return await canary.process(type, account || parse(ref, debug), bucket)
+  return await canary.process(type, account || parse(ref, debug), bucket);
 }

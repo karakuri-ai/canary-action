@@ -1,10 +1,10 @@
-import { diff as justDiff } from 'just-diff'
+import { diff as justDiff } from "just-diff";
 
 export function reverse(type: string) {
-  if (type === 'create') {
-    return 'remove'
+  if (type === "create") {
+    return "remove";
   }
-  return 'update'
+  return "update";
 }
 
 export function update(
@@ -13,32 +13,33 @@ export function update(
   accountId: string,
   operations: Record<string, unknown>
 ) {
-  if (type === 'remove') {
-    return current.map(c => (c === accountId ? '' : c))
+  if (type === "remove") {
+    return current.map((c) => (c === accountId ? "" : c));
   }
   if (current.includes(accountId)) {
-    return current
+    return current;
   }
   if (Object.keys(operations).length === 0) {
-    const index = current.findIndex(c => c === '')
+    const index = current.findIndex((c) => c === "");
     if (index > -1) {
-      const clone = [...current]
-      clone.splice(index, 1, accountId)
-      return clone
+      const clone = [...current];
+      clone.splice(index, 1, accountId);
+      return clone;
     }
   }
-  return [...current, accountId]
+  return [...current, accountId];
 }
 
 export function parse(ref: string | undefined, debug = (m: string) => {}) {
-  debug(`parse: ${ref}`)
+  debug(`parse: ${ref}`);
   if (!ref) {
-    return undefined
+    return undefined;
   }
-  if (/^.*?canary2\/([^/]+?)\/(develop|master)$/.test(ref)) {
-    return RegExp.$1
+  const matches = /^.*?canary(\d+)\/([^/]+?)\/(develop|master)$/.exec(ref);
+  if (matches !== null) {
+    return matches[2];
   }
-  return undefined
+  return undefined;
 }
 
 export function diff(
@@ -47,10 +48,10 @@ export function diff(
   accountId: string,
   operations: Record<string, unknown>
 ) {
-  const type = reverse(typeDetail)
+  const type = reverse(typeDetail);
   const target =
-    typeDetail === 'remove' && !canaries.includes(accountId)
+    typeDetail === "remove" && !canaries.includes(accountId)
       ? canaries
-      : update(type, canaries, accountId, operations)
-  return justDiff(canaries, target)
+      : update(type, canaries, accountId, operations);
+  return justDiff(canaries, target);
 }
