@@ -1,6 +1,6 @@
 {
   "name": "canary-action",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "main": "lib/index.js",
   "author": "t.saeki@karakuri.ai",
   "license": "UNLICENSED",

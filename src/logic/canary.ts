@@ -15,9 +15,10 @@ export function generateCanaryProcessor(
   sha: string,
   version: string
 ) {
+  const suffix = version === "2" ? "" : version;
   const keys = [
-    `canaries${version}/bots.json`,
-    `canaries${version}/operations.json`,
+    `canaries${suffix}/bots.json`,
+    `canaries${suffix}/operations.json`,
   ];
   return { process, postProcess };
 
